@@ -17,6 +17,7 @@
 #  limitations under the License.
 ###############################################################################
 
+from girder import events
 from girder.api import access
 from girder.api.describe import Description
 from girder.api.rest import loadmodel, Resource, RestException
@@ -61,14 +62,37 @@ class Thumbnail(Resource):
             'attachToId': params['attachToId']
         }
 
-        job = self.model('job', 'jobs').createLocalJob(
-            title='Generate thumbnail for %s' % file['name'], user=user,
-            type='thumbnails.create', public=False, kwargs=kwargs,
-            module='girder.plugins.thumbnails.worker')
+        event = events.trigger('thumbnails.schedule', info={
+# MARK
+            kwargs
+        })
+        handler = None
 
-        self.model('job', 'jobs').scheduleJob(job)
+        if len(event.responses):
+            kwargs = event.responses[-1]
+            handler = kwargs.pop("handler", None)
+            from pprint import pprint as pp
+            pp(10*"\n")
+            pp("KWARGS")
+            pp(kwargs)
+            pp(10*"\n")
+
+        if not event.defaultPrevented:
+            if handler is None:
+                job = self.model('job', 'jobs').createLocalJob(
+                    title='Generate thumbnail for %s' % file['name'], user=user,
+                    type='thumbnails.create', public=False, kwargs=kwargs,
+                    module='girder.plugins.thumbnails.worker')
+            else:
+                job = self.model('job', 'jobs').createJob(
+                    title='Generate thumbnail for %s' % file['name'], user=user,
+                    type='thumbnails.create', public=False, kwargs=kwargs,
+                    handler=handler)
+
+            self.model('job', 'jobs').scheduleJob(job)
 
         return self.model('job', 'jobs').filter(job, user=user)
+
     createThumbnail.description = (
         Description('Create a new thumbnail from an existing image file.')
         .notes('Setting a width or height parameter of 0 will preserve the '
