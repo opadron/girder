@@ -63,10 +63,7 @@ class Thumbnail(Resource):
             'attachToId': params['attachToId']
         }
 
-        event = events.trigger('thumbnails.schedule', info={
-# MARK
-            kwargs
-        })
+        event = events.trigger('thumbnails.schedule', info={'kwargs': kwargs})
         handler = None
 
         if len(event.responses):

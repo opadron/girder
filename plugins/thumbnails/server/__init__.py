@@ -52,6 +52,19 @@ def removeThumbnailLink(event):
             resource['_thumbnails'].remove(doc['_id'])
             model.save(resource, validate=False)
 
+def scheduleThumbnail(event):
+    kwargs = {
+        'width': width,
+        'height': height,
+        'fileId': str(file['_id']),
+        'crop': self.boolParam('crop', params, default=True),
+        'attachToType': params['attachToType'],
+        'attachToId': params['attachToId']
+    }
+
+    kwargs = event.info['kwargs']
+    fileModel = ModelImporter.model('file')
+    file = fileModel.load(kwargs['fileId'], level)
 
 def load(info):
     info['apiRoot'].thumbnail = rest.Thumbnail()
@@ -63,3 +76,5 @@ def load(info):
         events.bind('model.%s.remove' % model, 'thumbnails', removeThumbnails)
 
     events.bind('model.file.remove', 'thumbnails', removeThumbnailLink)
+    events.bind('thumbnail.schedule', 'thumbnails', scheduleThumbnail)
+
