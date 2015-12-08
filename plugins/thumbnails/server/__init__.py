@@ -65,6 +65,8 @@ def scheduleThumbnail(event):
     kwargs = event.info['kwargs']
     fileModel = ModelImporter.model('file')
     file = fileModel.load(kwargs['fileId'], level)
+    from pprint import pprint as pp
+    pp(file)
 
 def load(info):
     info['apiRoot'].thumbnail = rest.Thumbnail()
