@@ -66,7 +66,7 @@ def scheduleThumbnail(event):
     fileId = kwargs['fileId']
 
     file = fileModel.load(fileId, user=user, level=AccessType.READ)
-    pp(file)
+
     if 'dcm' in file['exts'] or 'dicom' in file['exts']:
         pp(file)
 
@@ -97,7 +97,7 @@ def scheduleThumbnail(event):
                         'url': ''.join((
                             '%s/dicom_thumbnailer/recv?',
                             'attachId=%s&attachType=item&fileId=%s')) % (
-                                getApiUrl(), attachToId, fileId)
+                                getApiUrl(), kwargs['attachToId'], fileId)
                     }
                 },
 
