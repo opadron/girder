@@ -110,7 +110,7 @@ def scheduleThumbnail(event):
                                      'pp(locals())',
                                      'pp(globals())',
                                      '',
-                                     ''))
+                                     '')),
 
                 'task': {
                     'inputs': [
