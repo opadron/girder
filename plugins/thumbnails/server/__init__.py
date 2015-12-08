@@ -59,9 +59,17 @@ def scheduleThumbnail(event):
 
     fileModel = ModelImporter.model('file')
     file = fileModel.load(kwargs['fileId'], user=user, level=AccessType.READ)
-    print file
 
-    event.addResponse(None)
+    if 'dcm' in file['exts'] or 'dicom' in file['exts']:
+        from pprint import pprint as pp ; pp(file)
+
+        response = kwargs.copy()
+        response.update(handler=dummy)
+        event.addResponse(response)
+
+def dummy(x):
+    print "DUMMY HANDLER"
+    from pprint import pprint as pp ; pp(x)
 
 def load(info):
     info['apiRoot'].thumbnail = rest.Thumbnail()
