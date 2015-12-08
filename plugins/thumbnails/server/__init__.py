@@ -64,12 +64,12 @@ def scheduleThumbnail(event):
         from pprint import pprint as pp ; pp(file)
 
         response = kwargs.copy()
-        response.update(handler=dummy)
+        response.update(handler='romanesco')
         event.addResponse(response)
 
-def dummy(x):
+def createDicomThumbnail(event):
     print "DUMMY HANDLER"
-    from pprint import pprint as pp ; pp(x)
+    from pprint import pprint as pp ; pp(event)
 
 def load(info):
     info['apiRoot'].thumbnail = rest.Thumbnail()
@@ -82,4 +82,5 @@ def load(info):
 
     events.bind('model.file.remove', 'thumbnails', removeThumbnailLink)
     events.bind('thumbnail.schedule', 'thumbnails', scheduleThumbnail)
+    events.bind('jobs.schedule', 'thumbnails', createDicomThumbnail)
 
