@@ -70,6 +70,7 @@ def scheduleThumbnail(event):
 def createDicomThumbnail(event):
     print "DUMMY HANDLER"
     from pprint import pprint as pp ; pp(event)
+    pp(event.info)
 
 def load(info):
     info['apiRoot'].thumbnail = rest.Thumbnail()
