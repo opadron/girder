@@ -69,13 +69,14 @@ class Thumbnail(Resource):
         handler = None
 
         if len(event.responses):
-            kwargs = event.responses[-1]
-            handler = kwargs.pop("handler", None)
+            response = event.responses[-1]
+            handler = response.pop('handler', None)
+            kwargs = response['kwargs']
             from pprint import pprint as pp
-            pp(10*"\n")
-            pp("KWARGS")
+            pp(10*'\n')
+            pp('KWARGS')
             pp(kwargs)
-            pp(10*"\n")
+            pp(10*'\n')
 
         if not event.defaultPrevented:
             if handler is None:
