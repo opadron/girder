@@ -55,6 +55,8 @@ def removeThumbnailLink(event):
 
 
 def scheduleThumbnail(event):
+    from pprint import pprint as pp
+
     kwargs = event.info['kwargs']
     user = event.info['user']
 
@@ -64,9 +66,9 @@ def scheduleThumbnail(event):
     fileId = kwargs['fileId']
 
     file = fileModel.load(fileId, user=user, level=AccessType.READ)
-
+    pp(file)
     if 'dcm' in file['exts'] or 'dicom' in file['exts']:
-        from pprint import pprint as pp ; pp(file)
+        pp(file)
 
         token = tokenModel.createToken(user=user)
 
