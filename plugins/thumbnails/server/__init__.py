@@ -71,6 +71,8 @@ def scheduleThumbnail(event):
     from pprint import pprint as pp
     pp(file)
 
+    return "O___O"
+
 def load(info):
     info['apiRoot'].thumbnail = rest.Thumbnail()
 
