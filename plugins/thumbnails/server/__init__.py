@@ -54,14 +54,14 @@ def removeThumbnailLink(event):
 
 
 def scheduleThumbnail(event):
-    kwargs = {
-        'width': width,
-        'height': height,
-        'fileId': str(file['_id']),
-        'crop': self.boolParam('crop', params, default=True),
-        'attachToType': params['attachToType'],
-        'attachToId': params['attachToId']
-    }
+    # kwargs = {
+    #     'width': width,
+    #     'height': height,
+    #     'fileId': str(file['_id']),
+    #     'crop': self.boolParam('crop', params, default=True),
+    #     'attachToType': params['attachToType'],
+    #     'attachToId': params['attachToId']
+    # }
 
     kwargs = event.info['kwargs']
     fileModel = ModelImporter.model('file')
