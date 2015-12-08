@@ -52,7 +52,10 @@ def removeThumbnailLink(event):
             resource['_thumbnails'].remove(doc['_id'])
             model.save(resource, validate=False)
 
+
 def scheduleThumbnail(event):
+    import pdb ; pdb.set_trace()
+
     kwargs = {
         'width': width,
         'height': height,
