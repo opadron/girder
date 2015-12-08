@@ -54,24 +54,14 @@ def removeThumbnailLink(event):
 
 
 def scheduleThumbnail(event):
-    # kwargs = {
-    #     'width': width,
-    #     'height': height,
-    #     'fileId': str(file['_id']),
-    #     'crop': self.boolParam('crop', params, default=True),
-    #     'attachToType': params['attachToType'],
-    #     'attachToId': params['attachToId']
-    # }
-
     kwargs = event.info['kwargs']
     user = event.info['user']
 
     fileModel = ModelImporter.model('file')
     file = fileModel.load(kwargs['fileId'], user=user, level=AccessType.READ)
-    from pprint import pprint as pp
-    pp(file)
+    print file
 
-    event.addResponse('O___O')
+    event.addResponse(None)
 
 def load(info):
     info['apiRoot'].thumbnail = rest.Thumbnail()
