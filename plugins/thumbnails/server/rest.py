@@ -63,7 +63,9 @@ class Thumbnail(Resource):
             'attachToId': params['attachToId']
         }
 
-        event = events.trigger('thumbnail.schedule', info={'kwargs': kwargs})
+        event = events.trigger('thumbnail.schedule',
+                               info={'kwargs': kwargs,
+                                     'user': user})
         handler = None
 
         if len(event.responses):

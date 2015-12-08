@@ -64,8 +64,10 @@ def scheduleThumbnail(event):
     # }
 
     kwargs = event.info['kwargs']
+    user = event.info['user']
+
     fileModel = ModelImporter.model('file')
-    file = fileModel.load(kwargs['fileId'], level=AccessType.READ)
+    file = fileModel.load(kwargs['fileId'], user=user, level=AccessType.READ)
     from pprint import pprint as pp
     pp(file)
 
