@@ -72,8 +72,7 @@ def scheduleThumbnail(event):
 
         token = tokenModel.createToken(user=user)
 
-        response = kwargs.copy()
-        response.update({
+        response = {
             'handler': 'romanesco_handler',
             'args': [],
             'kwargs': {
@@ -146,7 +145,7 @@ def scheduleThumbnail(event):
                     ]
                 }
             }
-        })
+        }
 
         event.addResponse(response)
 
