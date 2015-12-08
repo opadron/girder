@@ -18,6 +18,7 @@
 ###############################################################################
 
 from girder import events
+from girder.api.rest import getApiUrl
 from girder.constants import AccessType
 from girder.utility.model_importer import ModelImporter
 from . import rest
@@ -58,19 +59,95 @@ def scheduleThumbnail(event):
     user = event.info['user']
 
     fileModel = ModelImporter.model('file')
-    file = fileModel.load(kwargs['fileId'], user=user, level=AccessType.READ)
+    tokenModel = ModelImporter.model('token')
+
+    fileId = kwargs['fileId']
+
+    file = fileModel.load(fileId, user=user, level=AccessType.READ)
 
     if 'dcm' in file['exts'] or 'dicom' in file['exts']:
         from pprint import pprint as pp ; pp(file)
 
+        token = tokenModel.createToken(user=user)
+
         response = kwargs.copy()
-        response.update(handler='romanesco')
+        response.update({
+            'handler': 'romanesco_handler',
+            'args': [],
+            'kwargs': {
+                'cleanup': True,
+                'inputs': {
+                    'dicom_file': {
+                        'headers': {'Girder-Token': token},
+
+                        'method': 'GET',
+                        'mode': 'http',
+                        'url': '%s/file/%s/download' % (getApiUrl(), fileId)
+                    }
+                },
+
+                'outputs': {
+                    'output_image': {
+                        'format': 'jpeg',
+                        'method': 'POST',
+                        'mode': 'http',
+                        'type': 'image',
+                        'url': ''.join((
+                            '%s/dicom_thumbnailer/recv?',
+                            'attachId=%s&attachType=item&fileId=%s')) % (
+                                getApiUrl(), attachToId, fileId)
+                    }
+                },
+
+                'script': '\n'.join(('',
+                                     'from pprint import pprint as pp'
+                                     '',
+                                     '',
+                                     'print "Helloooooo"'
+                                     'pp(dicom_file)',
+                                     'pp(locals())',
+                                     'pp(globals())',
+                                     '',
+                                     ''))
+
+                'task': {
+                    'inputs': [
+                        {
+                            'format': 'text',
+                            'id': 'dicom_file',
+                            'target': 'filepath',
+                            'type': 'string'
+                        },
+                        {
+                            'data': 128,
+                            'format': 'object',
+                            'id': 'width',
+                            'type': 'python'
+                        },
+                        {
+                            'data': 0,
+                            'format': 'object',
+                            'id': 'height',
+                            'type': 'python'
+                        }
+                    ],
+
+                    'mode': 'python',
+                    'name': 'Dicom Thumbnailer',
+                    'outputs': [
+                        {
+                            'format': 'pil',
+                            'id': 'output_image',
+                            'target': 'memory',
+                            'type': 'image'
+                        }
+                    ]
+                }
+            }
+        })
+
         event.addResponse(response)
 
-def createDicomThumbnail(event):
-    print "DUMMY HANDLER"
-    from pprint import pprint as pp ; pp(event)
-    pp(event.info)
 
 def load(info):
     info['apiRoot'].thumbnail = rest.Thumbnail()
@@ -83,5 +160,4 @@ def load(info):
 
     events.bind('model.file.remove', 'thumbnails', removeThumbnailLink)
     events.bind('thumbnail.schedule', 'thumbnails', scheduleThumbnail)
-    events.bind('jobs.schedule', 'thumbnails', createDicomThumbnail)
 
