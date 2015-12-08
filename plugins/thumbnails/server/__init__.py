@@ -54,8 +54,6 @@ def removeThumbnailLink(event):
 
 
 def scheduleThumbnail(event):
-    import pdb ; pdb.set_trace()
-
     kwargs = {
         'width': width,
         'height': height,
