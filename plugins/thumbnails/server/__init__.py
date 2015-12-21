@@ -21,6 +21,8 @@ from girder import events
 from girder.api.rest import getApiUrl
 from girder.constants import AccessType
 from girder.utility.model_importer import ModelImporter
+
+from romanesco.utils import girderInputSpec, girderOutputSpec, jobInfoSpec
 from . import rest
 
 
@@ -62,6 +64,8 @@ def scheduleThumbnail(event):
     tokenModel = ModelImporter.model('token')
 
     fileId = kwargs['fileId']
+    width = kwargs['width']
+    height = kwargs['height']
 
     file = fileModel.load(fileId, user=user, level=AccessType.READ)
 
@@ -70,43 +74,7 @@ def scheduleThumbnail(event):
 
         response = {
             'handler': 'romanesco_handler',
-            'args': [],
             'kwargs': {
-                'cleanup': True,
-                'inputs': {
-                    'dicom_file': {
-                        'headers': {'Girder-Token': token},
-
-                        'method': 'GET',
-                        'mode': 'http',
-                        'url': '%s/file/%s/download' % (getApiUrl(), fileId)
-                    }
-                },
-
-                'outputs': {
-                    'output_image': {
-                        'format': 'jpeg',
-                        'method': 'POST',
-                        'mode': 'http',
-                        'type': 'image',
-                        'url': ''.join((
-                            '%s/dicom_thumbnailer/recv?',
-                            'attachId=%s&attachType=item&fileId=%s')) % (
-                                getApiUrl(), kwargs['attachToId'], fileId)
-                    }
-                },
-
-                'script': '\n'.join(('',
-                                     'from pprint import pprint as pp'
-                                     '',
-                                     '',
-                                     'print "Helloooooo"'
-                                     'pp(dicom_file)',
-                                     'pp(locals())',
-                                     'pp(globals())',
-                                     '',
-                                     '')),
-
                 'task': {
                     'inputs': [
                         {
@@ -116,21 +84,17 @@ def scheduleThumbnail(event):
                             'type': 'string'
                         },
                         {
-                            'data': 128,
                             'format': 'object',
                             'id': 'width',
                             'type': 'python'
                         },
                         {
-                            'data': 0,
                             'format': 'object',
                             'id': 'height',
                             'type': 'python'
                         }
                     ],
 
-                    'mode': 'python',
-                    'name': 'Dicom Thumbnailer',
                     'outputs': [
                         {
                             'format': 'pil',
@@ -139,7 +103,69 @@ def scheduleThumbnail(event):
                             'type': 'image'
                         }
                     ]
+
+                    'mode': 'python',
+
+                    'script': '\n'.join((
+                        '',
+                        'from pprint import pprint as pp'
+                        '',
+                        '',
+                        'print "Helloooooo"'
+                        'pp(dicom_file)',
+                        'pp(locals())',
+                        'pp(globals())',
+                        '',
+                        ''
+                    )),
+                },
+
+                'name': 'Dicom Thumbnailer',
+                'cleanup': True,
+
+                'inputs': {
+                    'dicom_file': girderInputSpec(file,
+                                                  resourceType='file',
+                                                  token=token,
+                                                  dataType='string',
+                                                  dataFormat='text'),
+
+                    'width': {'mode': 'inline',
+                              'data': width },
+
+                    'height': {'mode': 'inline',
+                               'data': height},
+                },
+
+                'outputs': {
+                    'output_image': {
+                        'format': 'jpeg',
+                        'method': 'POST',
+                        'mode': 'http',
+                        'type': 'image',
+                        'token': token['_id'],
+                        'url': ''.join((
+                            '%s/dicom_thumbnailer/recv?',
+                            'attachId=%s&attachType=item&fileId=%s')) % (
+                                getApiUrl(), kwargs['attachToId'], fileId)
+                    }
+                },
+            },
+
+            'job_info': {
+                'method': 'PUT',
+                'url': '/'.join((getApiUrl(), 'job', str(job['_id']))),
+                'headers': {'Girder-Token': token},
+                'logPrint': logPrint
+    }
+
+
+
                 }
+
+
+
+
             }
         }
 
